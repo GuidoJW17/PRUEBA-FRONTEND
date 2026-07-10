@@ -3,6 +3,12 @@ import inventarioIcon from './assets/img/inventario-icon.png';
 import eliminarIcon from './assets/img/eliminar-icon.png';
 import registrarIcon from './assets/img/registrar.png';
 import updateIcon from './assets/img/update.png';
+import disponibleIcon from './assets/img/disponible.png';
+import bajostockIcon from './assets/img/materiales.png';
+import sinStockIcon from './assets/img/sinstock.png';
+import totalMatsIcon from './assets/img/total.png';
+import nameIcon from './assets/img/min.png';
+import incompletoIcon from './assets/img/incompleto.png';
 
 const App = () => {
   useEffect(() => {
@@ -17,9 +23,11 @@ const App = () => {
   const [estado, setEstado] = useState("")
   const [find, setFind] = useState("") 
   const [editandoId, setEditandoId] = useState(null);
-  const [materialALiminar, setMaterialALiminar] = useState(null);
+  const [materialALiminar, setMaterialALiminar] = useState<any>(null); //UTILIZE ANY EN DISTINTAS VARIABLES COMO (ITEM) PARA ELIMINAR ESE ERROR MOLESTO
   const [mensajeExitoReg, setMensajeExitoReg] = useState(false);
   const [mensajeExitoUpd, setMensajeExitoUpd] = useState(false);
+  const [minName, setMinName] = useState(false);
+  const [incompleto, setIncompleto] = useState(false);
   
   const [paginaActual, setPaginaActual] = useState(1);
   const itemsPorPagina = 5; 
@@ -35,10 +43,10 @@ const App = () => {
 
   // CALCULOS PARA LAS TARJETAS
   const totalMateriales = inventarioList.length;
-  const disponibles = inventarioList.filter(item => item.estado === "Disponible").length;
-  const sinStock = inventarioList.filter(item => item.estado === "Sin stock").length;
+  const disponibles = inventarioList.filter((item: any) => item.estado === "Disponible").length;
+  const sinStock = inventarioList.filter((item: any) => item.estado === "Sin stock").length;
 
-  const listaFiltrada = inventarioList.filter((item) =>
+  const listaFiltrada = inventarioList.filter((item: any) =>
     item.nombre.toLowerCase().includes(find.toLowerCase()) ||
     item.proveedor.toLowerCase().includes(find.toLowerCase())
   );
@@ -47,14 +55,18 @@ const App = () => {
   const indiceInicio = indiceFin - itemsPorPagina;
   const itemsPaginados = listaFiltrada.slice(indiceInicio, indiceFin);
 
-  const registroSubmit = (e) => {
+  const registroSubmit = (e: React.FormEvent<HTMLFormElement>) => { //con este cambio se elimina el error abajo de la letra e
     e.preventDefault();
     if (!matsName || !catMats || !stock || !precioUni || !proveedor || !estado) {
-      alert("Porfavor rellene los campos")
+      setIncompleto(true)
+      return;
+    }
+    if (matsName.length < 3){
+      setMinName(true)
       return;
     }
     if (editandoId) {
-      setInventarioList(inventarioList.map(item => 
+      setInventarioList(inventarioList.map((item: any) => 
         item.id === editandoId ? { ...item, nombre: matsName, categoria: catMats, cantidad: stock, precio: precioUni, proveedor: proveedor, estado: estado } : item
       ));
       setEditandoId(null);
@@ -67,7 +79,7 @@ const App = () => {
     limpiar();
   }
 
-  const editarMaterial = (item) => {
+  const editarMaterial = (item: any) => {
     setMatsName(item.nombre);
     setCatMats(item.categoria);
     setStock(item.cantidad);
@@ -82,12 +94,12 @@ const App = () => {
     limpiar()
   };
 
-  const confirmarEliminacion = (id, nombre) => {
+  const confirmarEliminacion = (id: any, nombre: any) => {
     setMaterialALiminar({ id, nombre }); 
   };
 
   const eliminarMaterial = () => {
-    setInventarioList(inventarioList.filter(item => item.id !== materialALiminar.id));
+    setInventarioList(inventarioList.filter((item: any) => item.id !== materialALiminar.id));
     setMaterialALiminar(null);
   };
   
@@ -105,27 +117,7 @@ const App = () => {
       <div className="text-center my-4">
         <h1 className="fw-bold text-primary">SISTEMA DE GESTIÓN DE INVENTARIO</h1>
       </div>
-
-      {/* TARJETAS DE RESUMEN */}
-      <div className="container mt-4 mb-4">
-        <div className="row g-3">
-          <div className="col-md-4">
-            <div className="card text-center shadow-sm">
-              <div className="card-body"><h5>Total Materiales</h5><h3>{totalMateriales}</h3></div>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card text-center shadow-sm">
-              <div className="card-body"><h5>Disponibles</h5><h3 className="text-success">{disponibles}</h3></div>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card text-center shadow-sm">
-              <div className="card-body"><h5>Sin Stock </h5><h3 className="text-danger">{sinStock}</h3></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
       <div className="container-fluid mt-4">
         <div className="row">
@@ -192,6 +184,38 @@ const App = () => {
           </div>
 
           <div className="col-12 col-md-8">
+            {/* TARJETAS DE RESUMEN */}
+            <div className="container mt-4 mb-4">
+              <div className="row g-3">
+                <div className="col-md-3">
+                  <div className="card text-center shadow-sm">
+                    <img src={totalMatsIcon} className="rounded mx-auto d-block" alt="materialIcon" style={{width: '40px'}}/>
+                    <div className="card-body">
+                      <h5>Total Materiales</h5>
+                      <h3>{totalMateriales}</h3>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-3">
+                  <div className="card text-center shadow-sm">
+                    <img src={disponibleIcon} className="rounded mx-auto d-block" alt="disponibleIcon" style={{width: '40px'}}/>
+                    <div className="card-body"><h5>Disponibles</h5><h3 className="text-success">{disponibles}</h3></div>
+                  </div>
+                </div>
+                <div className="col-md-3"> 
+                  <div className="card text-center shadow-sm">
+                    <img src={bajostockIcon} className="rounded mx-auto d-block" alt="bajostockIcon" style={{width: '40px'}}/>
+                    <div className="card-body"><h5>Bajo Stock</h5><h3 className="text-warning">{}</h3></div> {/* ACTUALIZAR EL NUMERO DE BAJO STOCK */}
+                  </div>
+                </div>
+                <div className="col-md-3">
+                  <div className="card text-center shadow-sm">
+                    <img src={sinStockIcon} className="rounded mx-auto d-block" alt="sinStockIcon" style={{width: '40px'}}/>
+                    <div className="card-body"><h5>Sin Stock </h5><h3 className="text-danger">{sinStock}</h3></div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="card shadow p-3">
               <h3>Materiales Registrados</h3>
               <input className="form-control mb-3" placeholder="Buscar material o por proveedor" value={find} onChange={(e) => { setFind(e.target.value); setPaginaActual(1); }} />
@@ -209,7 +233,7 @@ const App = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {itemsPaginados.map((item) => (
+                    {itemsPaginados.map((item: any) => (
                       <tr key={item.id}>
                         <td>{item.nombre}</td>
                         <td>{item.categoria}</td>
@@ -286,7 +310,7 @@ const App = () => {
               </div>
             </>
           )}
-          {mensajeExitoUpd && ( //aqui muestra la el mensaje de que se actualizo el material
+          {mensajeExitoUpd && ( //aqui muestra el mensaje de que se actualizo el material
             <>
               <div className="modal-backdrop fade show"></div>
               <div className="modal fade show d-block">
@@ -301,6 +325,48 @@ const App = () => {
                       </div>
                       <div className="modal-footer">
                         <button type="button" className="btn btn-warning" onClick={() => setMensajeExitoUpd(false)}>ACEPTAR</button>
+                      </div>
+                    </div>
+                </div>
+              </div>
+            </>
+          )}
+          {minName && ( //aqui muestra el mensaje de que es necesario minimo 3 caracteres
+            <>
+              <div className="modal-backdrop fade show"></div>
+              <div className="modal fade show d-block">
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                      <div className="modal-header bg-warning text-white">
+                        <h5 className="modal-title">ACTUALIZACION DE MATERIAL</h5>
+                      </div>
+                      <div className="modal-body text-center">
+                        <img src={nameIcon} className="card-img-top" alt="nameIcon" style={{width: '100px', height: '70px'}}/>
+                        <h3>¡EL NOMBRE DEL MATERIAL DEBE TENER MINIMO 3 CARACTERES!</h3>
+                      </div>
+                      <div className="modal-footer">
+                        <button type="button" className="btn btn-warning" onClick={() => setMinName(false)}>ACEPTAR</button>
+                      </div>
+                    </div>
+                </div>
+              </div>
+            </>
+          )}
+          {incompleto && ( //aqui muestra el mensaje de que los campos estan incompletos
+            <>
+              <div className="modal-backdrop fade show"></div>
+              <div className="modal fade show d-block">
+                <div className="modal-dialog modal-dialog-centered">
+                    <div className="modal-content">
+                      <div className="modal-header bg-danger text-white">
+                        <h5 className="modal-title">ACTUALIZACION DE MATERIAL</h5>
+                      </div>
+                      <div className="modal-body text-center">
+                        <img src={incompletoIcon} className="card-img-top" alt="updIcon" style={{width: '100px', height: '100px'}}/>
+                        <h3>POR FAVOR RELLENE TODOS LOS CAMPOS</h3>
+                      </div>
+                      <div className="modal-footer">
+                        <button type="button" className="btn btn-danger" onClick={() => setIncompleto(false)}>ACEPTAR</button>
                       </div>
                     </div>
                 </div>
