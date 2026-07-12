@@ -23,7 +23,7 @@ const App = () => {
   const [estado, setEstado] = useState("")
   const [find, setFind] = useState("") 
   const [editandoId, setEditandoId] = useState(null);
-  const [materialALiminar, setMaterialALiminar] = useState<any>(null); //UTILIZE ANY EN DISTINTAS VARIABLES COMO (ITEM) PARA ELIMINAR ESE ERROR MOLESTO
+  const [materialALiminar, setMaterialALiminar] = useState<any>(null);
   const [mensajeExitoReg, setMensajeExitoReg] = useState(false);
   const [mensajeExitoUpd, setMensajeExitoUpd] = useState(false);
   const [minName, setMinName] = useState(false);
@@ -45,6 +45,7 @@ const App = () => {
   const totalMateriales = inventarioList.length;
   const disponibles = inventarioList.filter((item: any) => item.estado === "Disponible").length;
   const sinStock = inventarioList.filter((item: any) => item.estado === "Sin stock").length;
+  const bajoStock = inventarioList.filter((item: any) => item.estado === "Bajo en stock").length;
 
   const listaFiltrada = inventarioList.filter((item: any) =>
     item.nombre.toLowerCase().includes(find.toLowerCase()) ||
@@ -54,8 +55,9 @@ const App = () => {
   const indiceFin = paginaActual * itemsPorPagina;
   const indiceInicio = indiceFin - itemsPorPagina;
   const itemsPaginados = listaFiltrada.slice(indiceInicio, indiceFin);
-
-  const registroSubmit = (e: React.FormEvent<HTMLFormElement>) => { //con este cambio se elimina el error abajo de la letra e
+  
+  // Valida que el formulario esté completo antes de registrar o actualizar
+  const registroSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!matsName || !catMats || !stock || !precioUni || !proveedor || !estado) {
       setIncompleto(true)
@@ -129,15 +131,15 @@ const App = () => {
                   {editandoId ? "EDITAR MATERIAL" : "REGISTRAR MATERIAL"}
                 </h3>
               </div>
-              {/* NOMBRE MATERIAL*/}
               <div className="card-body">
                 <form onSubmit={registroSubmit}>
                   <div className="mb-3">
+                    {/* NOMBRE DEL MATERIAL*/}
                     <label className="form-label">MATERIAL:</label>
                     <input className="form-control" type="text" value={matsName} onChange={(e) => setMatsName(e.target.value)} />
                   </div>
-                  {/* CATEGORIA*/}
                   <div className="mb-3">
+                    {/*CATEGORIA*/}
                     <label className="form-label">CATEGORIA:</label>
                     <select className="form-select" value={catMats} onChange={(e) => setCatMats(e.target.value)}>
                       <option value="" disabled>Seleccione...</option>
@@ -147,20 +149,22 @@ const App = () => {
                       <option value="Fijaciones">Fijaciones</option>
                     </select>
                   </div>
-                  {/* STOCK*/}
                   <div className="mb-3">
+                    {/*CANTIDAD*/}
                     <label className="form-label">CANTIDAD:</label>
                     <input className="form-control" type="number" value={stock} onChange={(e) => setStock(e.target.value)} />
                   </div>
+                  {/*PRECIO*/}
                   <div className="mb-3">
                     <label className="form-label">PRECIO:</label>
                     <input className="form-control" type="number" value={precioUni} onChange={(e) => setPrecioUni(e.target.value)} />
                   </div>
+                  {/*PROOVEEDOR */}
                   <div className="mb-3">
                     <label className="form-label">PROVEEDOR:</label>
                     <input className="form-control" type="text" value={proveedor} onChange={(e) => setProveedor(e.target.value)} />
                   </div>
-                  {/* ESTADO*/}
+                  {/*ESTADO */}
                   <div className="mb-3">
                     <label className="form-label">ESTADO:</label>
                     <select className="form-select" value={estado} onChange={(e) => setEstado(e.target.value)}>
@@ -184,7 +188,6 @@ const App = () => {
           </div>
 
           <div className="col-12 col-md-8">
-            {/* TARJETAS DE RESUMEN */}
             <div className="container mt-4 mb-4">
               <div className="row g-3">
                 <div className="col-md-3">
@@ -205,7 +208,7 @@ const App = () => {
                 <div className="col-md-3"> 
                   <div className="card text-center shadow-sm">
                     <img src={bajostockIcon} className="rounded mx-auto d-block" alt="bajostockIcon" style={{width: '40px'}}/>
-                    <div className="card-body"><h5>Bajo Stock</h5><h3 className="text-warning">{}</h3></div> {/* ACTUALIZAR EL NUMERO DE BAJO STOCK */}
+                    <div className="card-body"><h5>Bajo Stock</h5><h3 className="text-warning">{bajoStock}</h3></div>
                   </div>
                 </div>
                 <div className="col-md-3">
@@ -258,7 +261,7 @@ const App = () => {
                       className={`btn ${paginaActual === i + 1 ? 'btn-primary' : 'btn-outline-primary'} mx-1`}
                       onClick={() => setPaginaActual(i + 1)}
                     >
-                      {i + 1}{/* aqui es donde hago para el salto de paginacion cuando sobre pase 5 materiales registrados*/}
+                      {i + 1}
                     </button>
                   ))}
                 </div>
@@ -266,8 +269,7 @@ const App = () => {
             </div>
           </div>
           
-          {/* MODALES */}
-          {materialALiminar && (//aqui es el mensaje de eliminar
+          {materialALiminar && (
             <>
               <div className="modal-backdrop fade show"></div>
               <div className="modal fade show d-block">
@@ -289,7 +291,7 @@ const App = () => {
               </div>
             </>
           )}
-          {mensajeExitoReg && (//aqui muestra el mensaje del material registrado
+          {mensajeExitoReg && (
             <>
               <div className="modal-backdrop fade show"></div>
               <div className="modal fade show d-block">
@@ -310,7 +312,7 @@ const App = () => {
               </div>
             </>
           )}
-          {mensajeExitoUpd && ( //aqui muestra el mensaje de que se actualizo el material
+          {mensajeExitoUpd && (
             <>
               <div className="modal-backdrop fade show"></div>
               <div className="modal fade show d-block">
@@ -331,7 +333,7 @@ const App = () => {
               </div>
             </>
           )}
-          {minName && ( //aqui muestra el mensaje de que es necesario minimo 3 caracteres
+          {minName && (
             <>
               <div className="modal-backdrop fade show"></div>
               <div className="modal fade show d-block">
@@ -352,7 +354,7 @@ const App = () => {
               </div>
             </>
           )}
-          {incompleto && ( //aqui muestra el mensaje de que los campos estan incompletos
+          {incompleto && (
             <>
               <div className="modal-backdrop fade show"></div>
               <div className="modal fade show d-block">
@@ -379,4 +381,4 @@ const App = () => {
   )
 }
 
-export default App
+export default App                  
